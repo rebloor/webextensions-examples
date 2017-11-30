@@ -112,9 +112,11 @@ document.addEventListener("click", (e) => {
     });
   }
 
-  else if (e.target.id === "tabs-add-zoom") {
+  else if (e.target.id === "tabs-add-zoom" || e.target.id === "tabs-add-zoom-persist") {
     callOnActiveTab((tab) => {
       var gettingZoom = browser.tabs.getZoom(tab.id);
+      var ZoomSet = browser.tabs.getZoomSettings(tab.id);
+      var scope = ZoomSet.scope
       gettingZoom.then((zoomFactor) => {
         //the maximum zoomFactor is 3, it can't go higher
         if (zoomFactor >= MAX_ZOOM) {
@@ -125,14 +127,21 @@ document.addEventListener("click", (e) => {
           //it won't change, and will never alert that it's at maximum
           newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
           browser.tabs.setZoom(tab.id, newZoomFactor);
-        }
+          if (e.target.id === "tabs-add-zoom-persist") {
+            browser.tabs.setZoomSettings(tab.id, {scope:"per-origin", mode:"automatic"});
+          } else {
+            browser.tabs.setZoomSettings(tab.id, {scope:"per-tab"});
+          };
+        };
       });
     });
   }
 
-  else if (e.target.id === "tabs-decrease-zoom") {
+  else if (e.target.id === "tabs-decrease-zoom" || e.target.id === "tabs-decrease-zoom-persist") {
     callOnActiveTab((tab) => {
       var gettingZoom = browser.tabs.getZoom(tab.id);
+      var ZoomSet = browser.tabs.getZoomSettings(tab.id);
+      var scope = ZoomSet.scope
       gettingZoom.then((zoomFactor) => {
         //the minimum zoomFactor is 0.3, it can't go lower
         if (zoomFactor <= MIN_ZOOM) {
@@ -143,7 +152,12 @@ document.addEventListener("click", (e) => {
           //it won't change, and will never alert that it's at minimum
           newZoomFactor = newZoomFactor < MIN_ZOOM ? MIN_ZOOM : newZoomFactor;
           browser.tabs.setZoom(tab.id, newZoomFactor);
-        }
+          if (e.target.id === "tabs-decrease-zoom-persist") {
+            browser.tabs.setZoomSettings(tab.id, {scope:"per-origin", mode:"automatic"});
+          } else {
+            browser.tabs.setZoomSettings(tab.id, {scope:"per-tab"});
+          };
+        };
       });
     });
   }
