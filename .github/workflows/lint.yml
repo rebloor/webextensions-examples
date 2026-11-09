@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - "**.js"
+      - "examples.json"
+      - "examples.schema.json"
+      - "package.json"
+      - "package-lock.json"
 
 jobs:
   eslint:
@@ -13,20 +17,40 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "latest"
+          node-version-file: .nvmrc
           cache: "npm"
 
       - run: npm ci
 
-      - uses: reviewdog/action-eslint@556a3fdaf8b4201d4d74d406013386aa4f7dab96 # v1
+      - uses: reviewdog/action-eslint@3ee2a450da17e060b9dfa4bffd53976906c6b2b0 # v1
         with:
           reporter: github-pr-review
           eslint_flags: "."
           filter_mode: "file"
           fail_on_error: true
+
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - run: npm ci
+
+      - run: npm run validate
